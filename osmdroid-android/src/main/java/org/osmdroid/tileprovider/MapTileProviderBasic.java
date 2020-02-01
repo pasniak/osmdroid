@@ -107,7 +107,7 @@ public class MapTileProviderBasic extends MapTileProviderArray implements IMapTi
 		mApproximationProvider.addProvider(cacheProvider);
 		mApproximationProvider.addProvider(archiveProvider);
 
-		mDownloaderProvider = new MapTileDownloader(pTileSource, tileWriter, aNetworkAvailablityCheck);
+		mDownloaderProvider = createDownloaderProvider(aNetworkAvailablityCheck, pTileSource);
 		mTileProviderList.add(mDownloaderProvider);
 
 		// protected-cache-tile computers
@@ -126,6 +126,13 @@ public class MapTileProviderBasic extends MapTileProviderArray implements IMapTi
 		getTileCache().getProtectedTileContainers().add(this);
 
 		setOfflineFirst(true);
+	}
+
+	/**
+	 * override createDownloaderProvider to customize tile download process
+	 * */
+	protected MapTileDownloader createDownloaderProvider(INetworkAvailablityCheck aNetworkAvailablityCheck, ITileSource pTileSource) {
+		return new MapTileDownloader(pTileSource, tileWriter, aNetworkAvailablityCheck);
 	}
 
 	@Override

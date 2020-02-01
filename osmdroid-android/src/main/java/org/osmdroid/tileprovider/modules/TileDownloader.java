@@ -137,9 +137,13 @@ public class TileDownloader {
 
 
             }
-            String mime = c.getHeaderField("Content-Type");
+            final String mime = c.getHeaderField("Content-Type");
+            final String expires = c.getHeaderField(OpenStreetMapTileProviderConstants.HTTP_EXPIRES_HEADER);
+            final String cacheControl = c.getHeaderField(OpenStreetMapTileProviderConstants.HTTP_CACHECONTROL_HEADER);
             if (Configuration.getInstance().isDebugMapTileDownloader()) {
-                Log.d(IMapView.LOGTAG, tileURLString + " success, mime is " + mime );
+                Log.d(IMapView.LOGTAG, tileURLString + " success, mime is " + mime +
+                        (expires != null ? ", http expires=\"" + expires + "\"" : "") +
+                        (cacheControl != null ? ", cacheControl=\"" + cacheControl + "\"" : ""));
             }
             if (mime!=null && !mime.toLowerCase().contains("image")) {
                 Log.w(IMapView.LOGTAG, tileURLString + " success, however the mime type does not appear to be an image " + mime );
@@ -149,10 +153,14 @@ public class TileDownloader {
 
             dataStream = new ByteArrayOutputStream();
             out = new BufferedOutputStream(dataStream, StreamUtils.IO_BUFFER_SIZE);
+
             final long expirationTime = computeExpirationTime(
-                    c.getHeaderField(OpenStreetMapTileProviderConstants.HTTP_EXPIRES_HEADER),
-                    c.getHeaderField(OpenStreetMapTileProviderConstants.HTTP_CACHECONTROL_HEADER),
-                    System.currentTimeMillis());
+                    expires,
+                    cacheControl,
+                    System.currentTimeMillis(),
+                    pTileSource,
+                    targetUrl);
+
             StreamUtils.copy(in, out);
             out.flush();
             final byte[] data = dataStream.toByteArray();
@@ -242,7 +250,8 @@ public class TileDownloader {
      * @since 6.0.3
      * @return the expiration time (as Epoch timestamp in milliseconds)
      */
-    public long computeExpirationTime(final String pHttpExpiresHeader, final String pHttpCacheControlHeader, final long pNow) {
+    public long computeExpirationTime(final String pHttpExpiresHeader, final String pHttpCacheControlHeader, final long pNow,
+                                      final OnlineTileSourceBase pTileSource, final String targetUrl) {
         final Long override=Configuration.getInstance().getExpirationOverrideDuration();
         if (override != null) {
             return pNow + override;

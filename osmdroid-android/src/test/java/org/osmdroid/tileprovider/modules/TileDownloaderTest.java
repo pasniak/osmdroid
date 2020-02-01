@@ -60,24 +60,24 @@ public class TileDownloaderTest {
             for (final String expiresString : mExpiresStringOK) {
                 Assert.assertEquals(
                         pOverride != null ? now + pOverride : now + mCacheControlValue * 1000 + pExtension,
-                        tileDownloader.computeExpirationTime(expiresString, cacheControlString, now));
+                        tileDownloader.computeExpirationTime(expiresString, cacheControlString, now, null, null));
             }
             for (final String expiresString : mExpiresStringKO) {
                 Assert.assertEquals(
                         pOverride != null ? now + pOverride : now + mCacheControlValue * 1000 + pExtension,
-                        tileDownloader.computeExpirationTime(expiresString, cacheControlString, now));
+                        tileDownloader.computeExpirationTime(expiresString, cacheControlString, now, null, null));
             }
         }
         for (final String cacheControlString : mCacheControlStringKO) {
             for (final String expiresString : mExpiresStringOK) {
                 Assert.assertEquals(
                         pOverride != null ? now + pOverride : mExpiresValue + pExtension,
-                        tileDownloader.computeExpirationTime(expiresString, cacheControlString, now));
+                        tileDownloader.computeExpirationTime(expiresString, cacheControlString, now, null, null));
             }
             for (final String expiresString : mExpiresStringKO) {
                 Assert.assertEquals(
                         pOverride != null ? now + pOverride : now + OpenStreetMapTileProviderConstants.DEFAULT_MAXIMUM_CACHED_FILE_AGE + pExtension,
-                        tileDownloader.computeExpirationTime(expiresString, cacheControlString, now));
+                        tileDownloader.computeExpirationTime(expiresString, cacheControlString, now, null, null));
             }
         }
     }
